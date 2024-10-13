@@ -1,0 +1,83 @@
+package {{.PackageName}}
+
+import (
+	"fmt"
+
+	"github.com/goccy/go-json"
+)
+
+type {{.EnumTypeName}} string
+
+const (
+	{{- range .EnumValues }}
+	{{$.EnumTypeName}}{{ . | constMaker }} {{$.EnumTypeName}} = "{{ . }}"
+	{{- end }}
+)
+
+func ({{.EnumTypeShortName}} {{.EnumTypeName}}) String() string {
+	return string({{.EnumTypeShortName}})
+}
+
+type {{.EnumTypeName}}ParseError struct {
+	{{.EnumTypeName}} string `json:"data"`
+}
+
+func (e {{.EnumTypeName}}ParseError) Error() string {
+	return "invalid {{.EnumTypeName}} value: " + e.{{.EnumTypeName}}
+}
+
+func Parse{{.EnumTypeName}}FromString({{.EnumTypeShortName}} string) ({{.EnumTypeName}}, error) {
+	switch {{.EnumTypeShortName}} {
+	{{- range .EnumValues }}
+	case {{$.EnumTypeName}}{{ . | constMaker }}.String():
+		return {{$.EnumTypeName}}{{ . | constMaker }}, nil
+	{{- end }}
+	default:
+		return "", {{.EnumTypeName}}ParseError{ {{.EnumTypeName}}: {{.EnumTypeShortName}} }
+	}
+}
+
+func MustParse{{.EnumTypeName}}FromString({{.EnumTypeShortName}} string) {{.EnumTypeName}} {
+	g, err := Parse{{.EnumTypeName}}FromString({{.EnumTypeShortName}})
+	if err != nil {
+		panic(err)
+	}
+
+	return g
+}
+
+func ({{.EnumTypeShortName}} *{{.EnumTypeName}}) MarshalJSON() ([]byte, error) {
+	return []byte(`"` + {{.EnumTypeShortName}}.String() + `"`), nil
+}
+
+type Unmarshal{{.EnumTypeName}}Error struct {
+	Data string `json:"data"`
+	Err  error  `json:"error"`
+}
+
+func (e Unmarshal{{.EnumTypeName}}Error) Error() string {
+	return fmt.Sprintf("error parsing {{.EnumTypeName}} `%s`: %v", e.Data, e.Err)
+}
+
+func ({{.EnumTypeShortName}} *{{.EnumTypeName}}) UnmarshalJSON(data []byte) error {
+	var tmp string
+	
+	if errU := json.Unmarshal(data, &tmp); errU != nil {
+		return Unmarshal{{.EnumTypeName}}Error{
+			Data: string(data),
+			Err:  errU,
+		}
+	}
+
+	var err error
+	
+	*{{.EnumTypeShortName}}, err = Parse{{.EnumTypeName}}FromString(tmp)
+	if err != nil {
+		return Unmarshal{{.EnumTypeName}}Error{
+			Data: string(data),
+			Err:  err,
+		}
+	}
+
+	return nil
+}

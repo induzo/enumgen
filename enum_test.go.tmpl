@@ -1,0 +1,199 @@
+package {{.PackageName}}
+
+import (
+	"errors"
+	"reflect"
+	"testing"
+)
+
+func Test{{.EnumTypeName}}_UnmarshalJSON(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		payload []byte
+		wantErr bool
+	}{
+		{{- range .EnumValues }}
+		{
+			name:    "correct",
+			payload: []byte(`"{{ . }}"`),
+			wantErr: false,
+		},
+		{{- end }}
+		{
+			name:    "error parsing",
+			payload: []byte(`"xxx"`),
+			wantErr: true,
+		},
+		{
+			name:    "error unmarshalling",
+			payload: []byte(`{}`),
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			var g {{.EnumTypeName}}
+			if err := g.UnmarshalJSON(tt.payload); (err != nil) != tt.wantErr {
+				t.Errorf("UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestMustParse{{.EnumTypeName}}FromString(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		chRes   string
+		want    {{.EnumTypeName}}
+		wantErr bool
+	}{
+		{{- range .EnumValues }}
+		{
+			name:  "correct {{ . }}",
+			chRes: "{{ . }}",
+			want:  {{$.EnumTypeName}}{{ . | constMaker }},
+		},
+		{{- end }}
+		{
+			name:    "error",
+			chRes:   "xxx",
+			want:    "",
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if tt.wantErr {
+				defer func() {
+					if r := recover(); r == nil {
+						t.Errorf("The code did not panic")
+					}
+				}()
+
+				MustParse{{.EnumTypeName}}FromString(tt.chRes)
+
+				return
+			}
+
+			got := MustParse{{.EnumTypeName}}FromString(tt.chRes)
+			if got != tt.want {
+				t.Errorf("MustParseFromString() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test{{.EnumTypeName}}_MarshalJSON(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		chRes   {{.EnumTypeName}}
+		want    []byte
+		wantErr bool
+	}{
+		{{- range .EnumValues }}
+		{
+			name:  "{{ . }}",
+			chRes: {{$.EnumTypeName}}{{ . | constMaker }},
+			want:  []byte(`"{{ . }}"`),
+		},
+		{{- end }}
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			got, err := tt.chRes.MarshalJSON()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
+				
+				return
+			}
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("MarshalJSON() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestUnmarshal{{.EnumTypeName}}Error_Error(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		Data string
+		Err  error
+		want string
+	}{
+		{
+			name: "correct",
+			Data: "data",
+			Err:  nil,
+			want: "error parsing {{.EnumTypeName}} `data`: <nil>",
+		},
+		{
+			name: "correct",
+			Data: "data",
+			Err:  errors.New("error"),
+			want: "error parsing {{.EnumTypeName}} `data`: error",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			e := Unmarshal{{.EnumTypeName}}Error{
+				Data: tt.Data,
+				Err:  tt.Err,
+			}
+
+			if got := e.Error(); got != tt.want {
+				t.Errorf("Unmarshal{{.EnumTypeName}}Error.Error() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test{{.EnumTypeName}}ParseError_Error(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		{{.EnumTypeName}} string
+		want        string
+	}{
+		{
+			name:        "correct",
+			{{.EnumTypeName}}: "data",
+			want:        "invalid {{.EnumTypeName}} value: data",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			e := {{.EnumTypeName}}ParseError{
+				{{.EnumTypeName}}: tt.{{.EnumTypeName}},
+			}
+
+			if got := e.Error(); got != tt.want {
+				t.Errorf("{{.EnumTypeName}}ParseError.Error() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
