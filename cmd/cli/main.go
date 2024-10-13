@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	genPath := flag.String("path", "./testdata", "Path to generate files")
+	genPath := flag.String("path", "", "Path to generate files")
 	packageName := flag.String("package", "book", "Package name")
 	enumTypeName := flag.String("enum", "Rating", "Enum type name")
 	enumTypeShortName := flag.String("short", "rat", "Enum type short name")
