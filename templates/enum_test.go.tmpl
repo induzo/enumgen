@@ -59,7 +59,7 @@ func TestMustParse{{.EnumTypeName}}FromString(t *testing.T) {
 		{
 			name:  "correct {{ . }}",
 			chRes: "{{ . }}",
-			want:  {{$.EnumTypeName}}{{ . | constMaker }},
+			want:  {{ if $.WithConstTypePrefix }}{{$.EnumTypeName}}{{end}}{{ . | constMaker }},
 		},
 		{{- end }}
 		{
@@ -106,7 +106,7 @@ func Test{{.EnumTypeName}}_MarshalJSON(t *testing.T) {
 		{{- range .EnumValues }}
 		{
 			name:  "{{ . }}",
-			chRes: {{$.EnumTypeName}}{{ . | constMaker }},
+			chRes: {{ if $.WithConstTypePrefix }}{{$.EnumTypeName}}{{end}}{{ . | constMaker }},
 			want:  []byte(`"{{ . }}"`),
 		},
 		{{- end }}

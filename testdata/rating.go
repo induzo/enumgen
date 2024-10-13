@@ -10,10 +10,10 @@ import (
 type Rating string
 
 const (
-	RatingNotGood Rating = "not_good"
-	RatingOk      Rating = "ok"
-	RatingNice    Rating = "nice"
-	RatingGreat   Rating = "great"
+	NotGood Rating = "not_good"
+	Ok      Rating = "ok"
+	Nice    Rating = "nice"
+	Great   Rating = "great"
 )
 
 func (rat Rating) String() string {
@@ -30,14 +30,14 @@ func (e RatingParseError) Error() string {
 
 func ParseRatingFromString(rat string) (Rating, error) {
 	switch rat {
-	case RatingNotGood.String():
-		return RatingNotGood, nil
-	case RatingOk.String():
-		return RatingOk, nil
-	case RatingNice.String():
-		return RatingNice, nil
-	case RatingGreat.String():
-		return RatingGreat, nil
+	case NotGood.String():
+		return NotGood, nil
+	case Ok.String():
+		return Ok, nil
+	case Nice.String():
+		return Nice, nil
+	case Great.String():
+		return Great, nil
 	default:
 		return "", RatingParseError{Rating: rat}
 	}
@@ -56,12 +56,12 @@ func (rat *Rating) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + rat.String() + `"`), nil
 }
 
-type UnmarshalRatingError struct {
+type UnmarshalJSONRatingError struct {
 	Data string `json:"data"`
 	Err  error  `json:"error"`
 }
 
-func (e UnmarshalRatingError) Error() string {
+func (e UnmarshalJSONRatingError) Error() string {
 	return fmt.Sprintf("error parsing Rating `%s`: %v", e.Data, e.Err)
 }
 
@@ -69,7 +69,7 @@ func (rat *Rating) UnmarshalJSON(data []byte) error {
 	var tmp string
 
 	if errU := json.Unmarshal(data, &tmp); errU != nil {
-		return UnmarshalRatingError{
+		return UnmarshalJSONRatingError{
 			Data: string(data),
 			Err:  errU,
 		}
@@ -79,7 +79,7 @@ func (rat *Rating) UnmarshalJSON(data []byte) error {
 
 	*rat, err = ParseRatingFromString(tmp)
 	if err != nil {
-		return UnmarshalRatingError{
+		return UnmarshalJSONRatingError{
 			Data: string(data),
 			Err:  err,
 		}

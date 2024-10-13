@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestRating_UnmarshalJSON(t *testing.T) {
+func TestGender_UnmarshalJSON(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -17,22 +17,17 @@ func TestRating_UnmarshalJSON(t *testing.T) {
 	}{
 		{
 			name:    "correct",
-			payload: []byte(`"not_good"`),
+			payload: []byte(`"male"`),
 			wantErr: false,
 		},
 		{
 			name:    "correct",
-			payload: []byte(`"ok"`),
+			payload: []byte(`"female"`),
 			wantErr: false,
 		},
 		{
 			name:    "correct",
-			payload: []byte(`"nice"`),
-			wantErr: false,
-		},
-		{
-			name:    "correct",
-			payload: []byte(`"great"`),
+			payload: []byte(`"other"`),
 			wantErr: false,
 		},
 		{
@@ -51,7 +46,7 @@ func TestRating_UnmarshalJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			var g Rating
+			var g Gender
 			if err := g.UnmarshalJSON(tt.payload); (err != nil) != tt.wantErr {
 				t.Errorf("UnmarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
 			}
@@ -59,34 +54,29 @@ func TestRating_UnmarshalJSON(t *testing.T) {
 	}
 }
 
-func TestMustParseRatingFromString(t *testing.T) {
+func TestMustParseGenderFromString(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name    string
 		chRes   string
-		want    Rating
+		want    Gender
 		wantErr bool
 	}{
 		{
-			name:  "correct not_good",
-			chRes: "not_good",
-			want:  NotGood,
+			name:  "correct male",
+			chRes: "male",
+			want:  GenderMale,
 		},
 		{
-			name:  "correct ok",
-			chRes: "ok",
-			want:  Ok,
+			name:  "correct female",
+			chRes: "female",
+			want:  GenderFemale,
 		},
 		{
-			name:  "correct nice",
-			chRes: "nice",
-			want:  Nice,
-		},
-		{
-			name:  "correct great",
-			chRes: "great",
-			want:  Great,
+			name:  "correct other",
+			chRes: "other",
+			want:  GenderOther,
 		},
 		{
 			name:    "error",
@@ -107,12 +97,12 @@ func TestMustParseRatingFromString(t *testing.T) {
 					}
 				}()
 
-				MustParseRatingFromString(tt.chRes)
+				MustParseGenderFromString(tt.chRes)
 
 				return
 			}
 
-			got := MustParseRatingFromString(tt.chRes)
+			got := MustParseGenderFromString(tt.chRes)
 			if got != tt.want {
 				t.Errorf("MustParseFromString() = %v, want %v", got, tt.want)
 			}
@@ -120,34 +110,29 @@ func TestMustParseRatingFromString(t *testing.T) {
 	}
 }
 
-func TestRating_MarshalJSON(t *testing.T) {
+func TestGender_MarshalJSON(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name    string
-		chRes   Rating
+		chRes   Gender
 		want    []byte
 		wantErr bool
 	}{
 		{
-			name:  "not_good",
-			chRes: NotGood,
-			want:  []byte(`"not_good"`),
+			name:  "male",
+			chRes: GenderMale,
+			want:  []byte(`"male"`),
 		},
 		{
-			name:  "ok",
-			chRes: Ok,
-			want:  []byte(`"ok"`),
+			name:  "female",
+			chRes: GenderFemale,
+			want:  []byte(`"female"`),
 		},
 		{
-			name:  "nice",
-			chRes: Nice,
-			want:  []byte(`"nice"`),
-		},
-		{
-			name:  "great",
-			chRes: Great,
-			want:  []byte(`"great"`),
+			name:  "other",
+			chRes: GenderOther,
+			want:  []byte(`"other"`),
 		},
 	}
 
@@ -169,7 +154,7 @@ func TestRating_MarshalJSON(t *testing.T) {
 	}
 }
 
-func TestUnmarshalRatingError_Error(t *testing.T) {
+func TestUnmarshalGenderError_Error(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -182,13 +167,13 @@ func TestUnmarshalRatingError_Error(t *testing.T) {
 			name: "correct",
 			Data: "data",
 			Err:  nil,
-			want: "error parsing Rating `data`: <nil>",
+			want: "error parsing Gender `data`: <nil>",
 		},
 		{
 			name: "correct",
 			Data: "data",
 			Err:  errors.New("error"),
-			want: "error parsing Rating `data`: error",
+			want: "error parsing Gender `data`: error",
 		},
 	}
 
@@ -196,30 +181,30 @@ func TestUnmarshalRatingError_Error(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := UnmarshalRatingError{
+			e := UnmarshalGenderError{
 				Data: tt.Data,
 				Err:  tt.Err,
 			}
 
 			if got := e.Error(); got != tt.want {
-				t.Errorf("UnmarshalRatingError.Error() = %v, want %v", got, tt.want)
+				t.Errorf("UnmarshalGenderError.Error() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestRatingParseError_Error(t *testing.T) {
+func TestGenderParseError_Error(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
 		name   string
-		Rating string
+		Gender string
 		want   string
 	}{
 		{
 			name:   "correct",
-			Rating: "data",
-			want:   "invalid Rating value: data",
+			Gender: "data",
+			want:   "invalid Gender value: data",
 		},
 	}
 
@@ -227,12 +212,12 @@ func TestRatingParseError_Error(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := RatingParseError{
-				Rating: tt.Rating,
+			e := GenderParseError{
+				Gender: tt.Gender,
 			}
 
 			if got := e.Error(); got != tt.want {
-				t.Errorf("RatingParseError.Error() = %v, want %v", got, tt.want)
+				t.Errorf("GenderParseError.Error() = %v, want %v", got, tt.want)
 			}
 		})
 	}

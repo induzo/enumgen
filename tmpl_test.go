@@ -13,7 +13,7 @@ func Test_generateFromTmpl(t *testing.T) {
 	tests := []struct {
 		name              string
 		templateFile      string
-		data              TemplateData
+		data              *TemplateData
 		fileToCompareWith string
 		want              []byte
 		wantErr           bool
@@ -30,13 +30,27 @@ func Test_generateFromTmpl(t *testing.T) {
 		{
 			name:         "valid data",
 			templateFile: "enum.go.tmpl",
-			data: TemplateData{
-				PackageName:       "book",
-				EnumTypeName:      "Rating",
-				EnumTypeShortName: "rat",
-				EnumValues:        []string{"not_good", "ok", "nice", "great"},
+			data: &TemplateData{
+				PackageName:         "book",
+				EnumTypeName:        "Rating",
+				EnumTypeShortName:   "rat",
+				EnumValues:          []string{"not_good", "ok", "nice", "great"},
+				WithConstTypePrefix: false,
 			},
 			fileToCompareWith: "testdata/rating.go",
+			wantErr:           false,
+		},
+		{
+			name:         "valid data with prefix",
+			templateFile: "enum.go.tmpl",
+			data: &TemplateData{
+				PackageName:         "book",
+				EnumTypeName:        "Gender",
+				EnumTypeShortName:   "gdr",
+				EnumValues:          []string{"male", "female", "other"},
+				WithConstTypePrefix: true,
+			},
+			fileToCompareWith: "testdata/gender.go",
 			wantErr:           false,
 		},
 	}

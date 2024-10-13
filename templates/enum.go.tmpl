@@ -11,7 +11,7 @@ type {{.EnumTypeName}} string
 
 const (
 	{{- range .EnumValues }}
-	{{$.EnumTypeName}}{{ . | constMaker }} {{$.EnumTypeName}} = "{{ . }}"
+	{{ if $.WithConstTypePrefix }}{{$.EnumTypeName}}{{end}}{{ . | constMaker }} {{$.EnumTypeName}} = "{{ . }}"
 	{{- end }}
 )
 
@@ -30,8 +30,8 @@ func (e {{.EnumTypeName}}ParseError) Error() string {
 func Parse{{.EnumTypeName}}FromString({{.EnumTypeShortName}} string) ({{.EnumTypeName}}, error) {
 	switch {{.EnumTypeShortName}} {
 	{{- range .EnumValues }}
-	case {{$.EnumTypeName}}{{ . | constMaker }}.String():
-		return {{$.EnumTypeName}}{{ . | constMaker }}, nil
+	case {{ if $.WithConstTypePrefix }}{{$.EnumTypeName}}{{end}}{{ . | constMaker }}.String():
+		return {{ if $.WithConstTypePrefix }}{{$.EnumTypeName}}{{end}}{{ . | constMaker }}, nil
 	{{- end }}
 	default:
 		return "", {{.EnumTypeName}}ParseError{ {{.EnumTypeName}}: {{.EnumTypeShortName}} }
@@ -51,12 +51,12 @@ func ({{.EnumTypeShortName}} *{{.EnumTypeName}}) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + {{.EnumTypeShortName}}.String() + `"`), nil
 }
 
-type Unmarshal{{.EnumTypeName}}Error struct {
+type UnmarshalJSON{{.EnumTypeName}}Error struct {
 	Data string `json:"data"`
 	Err  error  `json:"error"`
 }
 
-func (e Unmarshal{{.EnumTypeName}}Error) Error() string {
+func (e UnmarshalJSON{{.EnumTypeName}}Error) Error() string {
 	return fmt.Sprintf("error parsing {{.EnumTypeName}} `%s`: %v", e.Data, e.Err)
 }
 
@@ -64,7 +64,7 @@ func ({{.EnumTypeShortName}} *{{.EnumTypeName}}) UnmarshalJSON(data []byte) erro
 	var tmp string
 
 	if errU := json.Unmarshal(data, &tmp); errU != nil {
-		return Unmarshal{{.EnumTypeName}}Error{
+		return UnmarshalJSON{{.EnumTypeName}}Error{
 			Data: string(data),
 			Err:  errU,
 		}
@@ -74,7 +74,7 @@ func ({{.EnumTypeShortName}} *{{.EnumTypeName}}) UnmarshalJSON(data []byte) erro
 
 	*{{.EnumTypeShortName}}, err = Parse{{.EnumTypeName}}FromString(tmp)
 	if err != nil {
-		return Unmarshal{{.EnumTypeName}}Error{
+		return UnmarshalJSON{{.EnumTypeName}}Error{
 			Data: string(data),
 			Err:  err,
 		}

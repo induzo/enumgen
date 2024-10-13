@@ -16,16 +16,18 @@ func main() {
 	enumTypeShortName := flag.String("short", "rat", "Enum type short name")
 	enumValuesStr := flag.String("values", "not_good,ok,nice,great", "Comma-separated enum values")
 	isVerbose := flag.Bool("verbose", false, "Verbose output")
+	withConstTypePrefix := flag.Bool("with-const-type-prefix", true, "With const type prefix")
 
 	flag.Parse()
 
-	enumValues := strings.Split(strings.ReplaceAll(*enumValuesStr, "\"", ""), ",")
+	enumValues := strings.Split(*enumValuesStr, ",")
 
-	data := enumgen.TemplateData{
-		PackageName:       *packageName,
-		EnumTypeShortName: *enumTypeShortName,
-		EnumTypeName:      *enumTypeName,
-		EnumValues:        enumValues,
+	data := &enumgen.TemplateData{
+		PackageName:         *packageName,
+		EnumTypeShortName:   *enumTypeShortName,
+		EnumTypeName:        *enumTypeName,
+		WithConstTypePrefix: *withConstTypePrefix,
+		EnumValues:          enumValues,
 	}
 
 	if *isVerbose {
@@ -36,6 +38,7 @@ func main() {
 	cwd, errD := os.Getwd()
 	if errD != nil {
 		slog.Error("error getting current working directory", slog.Any("err", errD))
+
 		os.Exit(1)
 	}
 
@@ -45,7 +48,7 @@ func main() {
 	if errG != nil {
 		slog.Error("error generating files", slog.String("path", path), slog.Any("err", errG))
 
-		return
+		os.Exit(1)
 	}
 
 	if *isVerbose {

@@ -10,16 +10,17 @@ import (
 )
 
 type TemplateData struct {
-	PackageName       string
-	EnumTypeName      string
-	EnumTypeShortName string
-	EnumValues        []string
+	PackageName         string
+	EnumTypeName        string
+	EnumTypeShortName   string
+	WithConstTypePrefix bool
+	EnumValues          []string
 }
 
 //go:embed templates/*
 var templates embed.FS
 
-func generateFromTmpl(templateFile string, data TemplateData) ([]byte, error) {
+func generateFromTmpl(templateFile string, data *TemplateData) ([]byte, error) {
 	tmpl, errP := template.New(templateFile).
 		Funcs(template.FuncMap{"constMaker": constMaker}).
 		ParseFS(templates, `templates/`+templateFile)

@@ -17,7 +17,7 @@ func TestGenerateFiles(t *testing.T) {
 	tests := []struct {
 		name    string
 		path    string
-		data    TemplateData
+		data    *TemplateData
 		wantErr bool
 	}{
 		{
@@ -33,7 +33,7 @@ func TestGenerateFiles(t *testing.T) {
 		{
 			name: ". path",
 			path: ".",
-			data: TemplateData{
+			data: &TemplateData{
 				PackageName:       "book",
 				EnumTypeName:      "Rating",
 				EnumTypeShortName: "rat",
@@ -44,7 +44,7 @@ func TestGenerateFiles(t *testing.T) {
 		{
 			name: "./ path",
 			path: "./",
-			data: TemplateData{
+			data: &TemplateData{
 				PackageName:       "book",
 				EnumTypeName:      "Rating",
 				EnumTypeShortName: "rat",
@@ -55,7 +55,7 @@ func TestGenerateFiles(t *testing.T) {
 		{
 			name: "wrong package name",
 			path: "./",
-			data: TemplateData{
+			data: &TemplateData{
 				PackageName:       "",
 				EnumTypeName:      "Rating",
 				EnumTypeShortName: "rat",
@@ -66,7 +66,7 @@ func TestGenerateFiles(t *testing.T) {
 		{
 			name: "wrong enum type name",
 			path: "./",
-			data: TemplateData{
+			data: &TemplateData{
 				PackageName:       "book",
 				EnumTypeName:      "",
 				EnumTypeShortName: "rat",

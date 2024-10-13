@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func GenerateFiles(path string, data TemplateData) ([]string, error) {
+func GenerateFiles(path string, data *TemplateData) ([]string, error) {
 	// check if the path exists and that it contains a trailing slash
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		return nil, fmt.Errorf("path does not exist: %w", err)
@@ -41,7 +41,7 @@ func GenerateFiles(path string, data TemplateData) ([]string, error) {
 	return genFiles, nil
 }
 
-func GenerateFile(filename, templateFile string, data TemplateData) error {
+func GenerateFile(filename, templateFile string, data *TemplateData) error {
 	formatted, errG := generateFromTmpl(templateFile, data)
 	if errG != nil {
 		return fmt.Errorf("error generating from template: %w", errG)
