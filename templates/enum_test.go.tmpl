@@ -130,7 +130,7 @@ func Test{{.EnumTypeName}}_MarshalJSON(t *testing.T) {
 	}
 }
 
-func TestUnmarshal{{.EnumTypeName}}Error_Error(t *testing.T) {
+func TestUnmarshalJSON{{.EnumTypeName}}Error_Error(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -157,13 +157,13 @@ func TestUnmarshal{{.EnumTypeName}}Error_Error(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			e := Unmarshal{{.EnumTypeName}}Error{
+			e := UnmarshalJSON{{.EnumTypeName}}Error{
 				Data: tt.Data,
 				Err:  tt.Err,
 			}
 
 			if got := e.Error(); got != tt.want {
-				t.Errorf("Unmarshal{{.EnumTypeName}}Error.Error() = %v, want %v", got, tt.want)
+				t.Errorf("UnmarshalJSON{{.EnumTypeName}}Error.Error() = %v, want %v", got, tt.want)
 			}
 		})
 	}
