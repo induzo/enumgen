@@ -28,6 +28,10 @@ func main() {
 		EnumValues:        enumValues,
 	}
 
+	if *isVerbose {
+		slog.Info("enumValues", slog.String("data", *enumValuesStr))
+	}
+
 	// Get the current working directory (the one `go generate` runs in).
 	cwd, errD := os.Getwd()
 	if errD != nil {
