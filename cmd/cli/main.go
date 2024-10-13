@@ -15,10 +15,11 @@ func main() {
 	enumTypeName := flag.String("enum", "Rating", "Enum type name")
 	enumTypeShortName := flag.String("short", "rat", "Enum type short name")
 	enumValuesStr := flag.String("values", "not_good,ok,nice,great", "Comma-separated enum values")
+	isVerbose := flag.Bool("verbose", false, "Verbose output")
 
 	flag.Parse()
 
-	enumValues := strings.Split(*enumValuesStr, ",")
+	enumValues := strings.Split(strings.ReplaceAll(*enumValuesStr, "\"", ""), ",")
 
 	data := enumgen.TemplateData{
 		PackageName:       *packageName,
@@ -36,20 +37,14 @@ func main() {
 
 	path := cwd + `/` + *genPath
 
-	slog.Info("generating files",
-		slog.String("path", path),
-		slog.String("package", *packageName),
-		slog.String("enum", *enumTypeName),
-		slog.String("short", *enumTypeShortName),
-		slog.String("values", strings.Join(enumValues, ", ")),
-	)
-
 	files, errG := enumgen.GenerateFiles(path, data)
 	if errG != nil {
-		slog.Error("error generating files", slog.Any("err", errG))
+		slog.Error("error generating files", slog.String("path", path), slog.Any("err", errG))
 
 		return
 	}
 
-	slog.Info("files generated successfully", slog.String("files", strings.Join(files, ", ")))
+	if *isVerbose {
+		slog.Info("files generated successfully", slog.String("files", strings.Join(files, ", ")))
+	}
 }
