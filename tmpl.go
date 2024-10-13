@@ -2,6 +2,7 @@ package enumgen
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"text/template"
 
@@ -15,8 +16,13 @@ type TemplateData struct {
 	EnumValues        []string
 }
 
+//go:embed templates/*
+var templates embed.FS
+
 func generateFromTmpl(templateFile string, data TemplateData) ([]byte, error) {
-	tmpl, errP := template.New(templateFile).Funcs(template.FuncMap{"constMaker": constMaker}).ParseFiles(templateFile)
+	tmpl, errP := template.New(templateFile).
+		Funcs(template.FuncMap{"constMaker": constMaker}).
+		ParseFS(templates, `templates/`+templateFile)
 	if errP != nil {
 		return nil, fmt.Errorf("error parsing template file: %w", errP)
 	}

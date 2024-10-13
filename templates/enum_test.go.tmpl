@@ -118,7 +118,7 @@ func Test{{.EnumTypeName}}_MarshalJSON(t *testing.T) {
 			got, err := tt.chRes.MarshalJSON()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("MarshalJSON() error = %v, wantErr %v", err, tt.wantErr)
-				
+
 				return
 			}
 
