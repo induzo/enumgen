@@ -18,9 +18,9 @@ before:
     - make test
 
 builds:
-  - main: ./cmd/cli
-    id: "cli"
-    binary: cli
+  - main: ./cmd/enumgen
+    id: "enumgen"
+    binary: enumgen
     env:
       - CGO_ENABLED=0
     goos:

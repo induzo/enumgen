@@ -25,7 +25,7 @@ test-coverage-report: ## test with coverage report
 
 test-coveralls:
 	go test ./... -coverpkg=./... -race -failfast -covermode=atomic -coverprofile=./tmp.coverage.out && cat tmp.coverage.out | grep -v '/mocks' > ./coverage.out
-	goveralls -covermode=atomic -coverprofile=./coverage.out -repotoken=$(COVERALLS_TOKEN)
+	go tool goveralls -covermode=atomic -coverprofile=./coverage.out -repotoken=$(COVERALLS_TOKEN)
 
 test-clean-cache: ## clean test cache
 	go clean -testcache
@@ -39,7 +39,7 @@ bench: ## launch benchs
 	go test ./... -bench=. -benchmem | tee ./bench.txt
 
 bench-compare: ## compare benchs results
-	benchstat ./bench.txt
+	go tool benchstat ./bench.txt
 
 
 ############
@@ -57,10 +57,10 @@ upgrade: ## upgrade dependencies (beware, it can break everything)
 ########
 
 lint: ## lints the entire codebase
-	@golangci-lint run ./... --config=./.golangci.toml
+	@go tool golangci-lint run ./... --config=./.golangci.toml
 
 lint-clean-cache: ## clean the linter cache
-	@golangci-lint cache clean
+	@go tool golangci-lint cache clean
 
 lint-goleak:
 	@find . -type d | while read -r dir; do \
@@ -88,10 +88,10 @@ sec-trivy-scan: ## scan for sec issues with trivy (trivy binary needed)
 	trivy fs --exit-code 1 --no-progress --severity CRITICAL ./
 
 sec-vuln-scan: ## scan for vulnerability issues with govulncheck (govulncheck binary needed)
-	govulncheck ./...
+	go tool govulncheck ./...
 
 gci-format: ## format repo through gci linter
-	gci write ./ --skip-generated -s standard -s default -s "Prefix(github.com/induzo/enumgen)"
+	go tool gci write ./ --skip-generated -s standard -s default -s "Prefix(github.com/induzo/enumgen)"
 
 ############
 # generate #
